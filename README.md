@@ -1,1 +1,1 @@
-# Kamakz ERP
+# POS SYSTEM
