@@ -234,6 +234,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         const updatedOrders = orders.filter((order) => order !== orderIdString);
         setOrders(updatedOrders);
 
+        // Refresh the entire page after deletion
+        window.location.reload();
+
         if (updatedOrders.length > 0) {
           const nextOrder =
             updatedOrders[

@@ -83,19 +83,20 @@ const Receipt: React.FC<ReceiptProps> = ({ receiptData }) => {
       >
         <header className="flex flex-col items-center mb-4">
           <img
-            src={receiptData?.companyLogo}
+            src="/kamaklogo.png"
             alt="Logo"
             className="w-32 h-auto mb-2"
           />
-          <h2 className="text-xl font-bold">{receiptData?.loginCompany}</h2>
-          <p className="text-sm">{receiptData?.companyAddress}</p>
+          {/* <h2 className="text-xl font-bold">{receiptData?.loginCompany}</h2> */}
+          <br />
+          <p className="text-sm">East Legon</p>
           <p className="text-sm">Tel: {receiptData?.companyTelephone}</p>
-          <p className="text-sm">Email: {receiptData?.companyEmail}</p>
+          <p className="text-sm">Email: kamakgroup@gmail.com</p>
           <button
             className="mt-2 px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-500"
             onClick={() => window.print()}
           >
-            RECEIPT
+            PRINT RECEIPT
           </button>
         </header>
 

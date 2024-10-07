@@ -180,26 +180,27 @@ export const CartTable: React.FC<CartTableProps> = ({
                     )}
                   </td>
                   <td
-                    className="py-2 px-4 border-r border-gray-300 text-sm font-medium"
-                    onDoubleClick={() => handleDoubleClick(product, "discount")}
-                  >
-                    {editingProductId === product.productId ? (
-                      <input
-                        type="number"
-                        value={editableValues?.discount || product.discount}
-                        onChange={(e) =>
-                          setEditableValues({
-                            ...editableValues!,
-                            discount: parseFloat(e.target.value),
-                          })
-                        }
-                        onKeyPress={(e) => handleKeyPress(e, product)}
-                        className="border border-gray-300 rounded px-1"
-                      />
-                    ) : (
-                      product.discount
-                    )}
-                  </td>
+  className="py-2 px-4 border-r border-gray-300 text-sm font-medium"
+  onDoubleClick={() => handleDoubleClick(product, "discount")}
+>
+  {editingProductId === product.productId ? (
+    <input
+      type="number"
+      value={editableValues?.discount || product.discount}
+      onChange={(e) =>
+        setEditableValues({
+          ...editableValues!,
+          discount: parseFloat(e.target.value),
+        })
+      }
+      onKeyPress={(e) => handleKeyPress(e, product)}
+      className="border border-gray-300 rounded px-1"
+    />
+  ) : (
+    `${product.discount || 0}%`
+  )}
+</td>
+
                   <td className="py-2 px-4 border-r border-gray-300 text-sm font-medium">
                     0%
                   </td>
