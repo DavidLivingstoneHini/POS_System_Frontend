@@ -568,7 +568,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       alt="Save"
       width={34} 
       height={30}
-      className="mr-2" 
+      className="cursor-pointer mr-2" 
                        onClick={handleSaveOrder}
     />
               <div className="absolute top-full left-0 bg-gray-800 text-white px-2 py-1 rounded-md text-sm mt-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
