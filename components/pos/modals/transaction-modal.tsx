@@ -58,10 +58,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     }
 
     const newPayment: Payment = {
-      paymentId: Date.now(),
-      user: localStorage.getItem("username") || "",
+      paymentId: 0,
+      user: localStorage.getItem("username") ?? "",
       paymentDate: new Date().toISOString(),
       amount: inputAmount,
+      totalBill: grandTotal,
+      totalPayment: inputAmount,
+      balance: grandTotal - inputAmount,
+      salesOrderId: localStorage.getItem("selectedOrderId") ?? 0,
     };
 
     // Call the onConfirmTransaction prop to update the parent state
@@ -72,7 +76,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   };
 
   const totalPayments = payments.reduce(
-    (sum, payment) => sum + (payment.amount ?? 0), // Use nullish coalescing to default to 0
+    (sum, payment) => sum + (payment.amount ?? 0),
     0
   );
 
@@ -166,7 +170,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   <div className="flex flex-col items-end">
                     <p className="text-gray-700">GH₵{grandTotal.toFixed(2)}</p>
                     <p className="text-orange-600">
-                      GH₵{totalPayments.toFixed(2)}
+                      GH₵{localStorage.getItem("total")}
                     </p>
                     <p className="text-gray-700">
                       GH₵{(grandTotal - totalPayments).toFixed(2)}

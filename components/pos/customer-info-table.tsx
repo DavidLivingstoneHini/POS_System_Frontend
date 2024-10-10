@@ -27,10 +27,11 @@ interface CustomerInfoTableProps {
       | "discountPercentage",
     value: string | number
   ) => void;
-  applyDiscount: (discountPercentage: number) => void;
-  applyQuantity: (quantity: number) => void;
-  applyPrice: (newPrice: number) => void;
+  applyDiscount: (discountPercentage: number, productId: number) => void;
+  applyQuantity: (quantity: number, productId: number) => void;
+  applyPrice: (newPrice: number, productId: number) => void;
   selectedProduct: Product | null;
+  setSelectedProduct: (product: Product | null) => void;
   onError: (message: string) => void;
   onSuccess: (message: string) => void;
 }
@@ -43,6 +44,7 @@ export const CustomerInfoTable: React.FC<CustomerInfoTableProps> = ({
   applyQuantity,
   applyPrice,
   selectedProduct,
+  setSelectedProduct,
   onError,
   onSuccess,
 }) => {
@@ -220,27 +222,27 @@ export const CustomerInfoTable: React.FC<CustomerInfoTableProps> = ({
   const handleApplyDiscount = () => {
     if (selectedProduct && inputValue > 0) {
       handleCustomerInfoChange("discountPercentage", inputValue);
-      applyDiscount(inputValue);
+      applyDiscount(inputValue, selectedProduct.productId ?? 0);
     }
     setInputValue(0);
   };
 
   const handleApplyQuantity = () => {
     if (selectedProduct && inputValue > 0) {
-      applyQuantity(inputValue);
+      applyQuantity(inputValue, selectedProduct.productId ?? 0);
     }
     setInputValue(0);
   };
 
   const handleApplyPrice = () => {
     if (selectedProduct && inputValue > 0) {
-      applyPrice(inputValue);
+      applyPrice(inputValue, selectedProduct.productId ?? 0);
     }
     setInputValue(0);
   };
 
   return (
-    <div className="bg-default-50 rounded-lg shadow-md py-2 px-[20px] opacity-90 border border-gray-300">
+    <div className="bg-default-100 rounded-lg shadow-md py-2 px-[38px] opacity-90 max-w-xl mx-auto border border-gray-300">
       <h3 className="text-[15px] font-bold mb-2">Customer Information</h3>
       <div className="flex flex-col gap-[4px]">
         {/* Row for Customer, Agent, and Loyalty Barcode */}

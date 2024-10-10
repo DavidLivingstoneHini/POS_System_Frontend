@@ -89,27 +89,14 @@ export const CartTable: React.FC<CartTableProps> = ({
         <table className="w-full bg-white shadow-md border border-gray-300 rounded-lg">
           <thead className="sticky top-0 bg-blue-400 text-white">
             <tr className="border-b border-gray-300">
-              <th className="py-2 px-4 text-left border-r border-gray-300">
-                Name
-              </th>
-              <th className="py-2 px-4 text-left border-r border-gray-300">
-                Qty
-              </th>
-              <th className="py-2 px-4 text-left border-r border-gray-300">
-                Price(GH₵)
-              </th>
-              <th className="py-2 px-4 text-left border-r border-gray-300">
-                Disc
-              </th>
-              <th className="py-2 px-4 text-left border-r border-gray-300">
-                Tax
-              </th>
-              <th className="py-2 px-4 text-left border-r border-gray-300">
-                Total(GH₵)
-              </th>
-              <th className="py-2 px-4 text-left border-r border-gray-300">
-                Confirmed
-              </th>
+              <th className="py-2 px-4 text-left border-r border-gray-300"></th>
+              <th className="py-2 px-4 text-left border-r border-gray-300">Name</th>
+              <th className="py-2 px-4 text-left border-r border-gray-300">Qty</th>
+              <th className="py-2 px-4 text-left border-r border-gray-300">Price(GH₵)</th>
+              <th className="py-2 px-4 text-left border-r border-gray-300">Disc</th>
+              <th className="py-2 px-4 text-left border-r border-gray-300">Tax</th>
+              <th className="py-2 px-4 text-left border-r border-gray-300">Total(GH₵)</th>
+              <th className="py-2 px-4 text-left border-r border-gray-300">Confirmed</th>
               <th className="py-2 px-4 text-left border-r border-gray-300"></th>
             </tr>
           </thead>
@@ -125,6 +112,14 @@ export const CartTable: React.FC<CartTableProps> = ({
                   }`}
                   onClick={() => handleRowClick(product)}
                 >
+                  <td className="py-2 px-4 border-r border-gray-300">
+                    <input
+                      type="checkbox"
+                      checked={selectedProduct?.productId === product.productId}
+                      onChange={() => handleRowClick(product)} // Toggle selection
+                      className="form-checkbox h-5 w-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </td>
                   <td className="py-2 px-4 border-r border-gray-300 text-sm font-medium">
                     {product.productName}
                   </td>
@@ -172,35 +167,30 @@ export const CartTable: React.FC<CartTableProps> = ({
                         className="border border-gray-300 rounded px-1"
                       />
                     ) : (
-                      (
-                        product.sellingPriceActual ||
-                        product.unitPrice ||
-                        0
-                      ).toFixed(2)
+                      (product.sellingPriceActual || product.unitPrice || 0).toFixed(2)
                     )}
                   </td>
                   <td
-  className="py-2 px-4 border-r border-gray-300 text-sm font-medium"
-  onDoubleClick={() => handleDoubleClick(product, "discount")}
->
-  {editingProductId === product.productId ? (
-    <input
-      type="number"
-      value={editableValues?.discount || product.discount}
-      onChange={(e) =>
-        setEditableValues({
-          ...editableValues!,
-          discount: parseFloat(e.target.value),
-        })
-      }
-      onKeyPress={(e) => handleKeyPress(e, product)}
-      className="border border-gray-300 rounded px-1"
-    />
-  ) : (
-    `${product.discount || 0}%`
-  )}
-</td>
-
+                    className="py-2 px-4 border-r border-gray-300 text-sm font-medium"
+                    onDoubleClick={() => handleDoubleClick(product, "discount")}
+                  >
+                    {editingProductId === product.productId ? (
+                      <input
+                        type="number"
+                        value={editableValues?.discount || product.discount}
+                        onChange={(e) =>
+                          setEditableValues({
+                            ...editableValues!,
+                            discount: parseFloat(e.target.value),
+                          })
+                        }
+                        onKeyPress={(e) => handleKeyPress(e, product)}
+                        className="border border-gray-300 rounded px-1"
+                      />
+                    ) : (
+                      `${product.discount || 0}%`
+                    )}
+                  </td>
                   <td className="py-2 px-4 border-r border-gray-300 text-sm font-medium">
                     0%
                   </td>
@@ -245,7 +235,7 @@ export const CartTable: React.FC<CartTableProps> = ({
               ))
             ) : (
               <tr className="border-b border-gray-300">
-                <td colSpan={8} className="py-2 px-4 text-center text-gray-500">
+                <td colSpan={9} className="py-2 px-4 text-center text-gray-500">
                   No items found
                 </td>
               </tr>

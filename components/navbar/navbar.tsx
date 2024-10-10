@@ -1,5 +1,6 @@
 import { Input, Navbar, NavbarContent } from "@nextui-org/react";
 import React from "react";
+import Image from "next/image"; // Import the Image component
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { SupportIcon } from "../icons/navbar/support-icon";
 import { SearchIcon } from "../icons/searchicon";
@@ -30,7 +31,7 @@ export const NavbarWrapper = ({ children }: Props) => {
     <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
       <Navbar
         isBordered
-        className="w-full"
+        className="w-full bg-gradient-to-r from-purple-800 to-black" // Updated darker gradient
         classNames={{
           wrapper: "w-full max-w-full",
         }}
@@ -55,7 +56,14 @@ export const NavbarWrapper = ({ children }: Props) => {
         {!isHomePage && (
           <NavbarContent className="flex justify-center flex-grow">
             <div className="bg-gradient-to-r from-blue-100 to-red-200 border border-gray-300 rounded-lg shadow-lg p-3 max-w-fit">
-              <span className="text-[16px] font-semibold text-gray-700">
+              <span className="text-[16px] font-semibold text-gray-700 flex flex-row">
+                <Image
+                  src="/posicon.png"
+                  alt="Point of Sale Icon"
+                  width={26}
+                  height={25}
+                  className="mr-2" 
+                />
                 {currentPageTitle}
               </span>
             </div>

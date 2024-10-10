@@ -25,6 +25,8 @@ import { useRouter } from "next/navigation";
 import { getCompanyId, getStaffId } from "@/utils/LocalStorageUtils";
 import Modal from "./modals/PrintReceipt";
 import Receipt from "./receipt";
+import Image from 'next/image';
+
 
 interface ProductTableProps {
   products: Product[];
@@ -122,15 +124,16 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   const orderTagsRef = useRef<HTMLDivElement>(null);
 
   const handleSaveOrder = async () => {
-    // Check if there are products in the cart
-    if (selectedOrder && cart.length === 0) {
-      alert(
-        "Please add products to the cart before saving the existing order."
-      );
-      return;
-    }
+    // // Check if there are products in the cart
+    // if (selectedOrder && cart.length === 0) {
+    //   alert(
+    //     "Please add products to the cart before saving the existing order."
+    //   );
+    //   return;
+    // }
     try {
       const newOrderProducts = cart;
+      const newPayments = payments;
 
       // Create a new products array, renaming keys as necessary and calculating totals
       const filteredProducts = newOrderProducts.map(
@@ -165,6 +168,21 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         }
       );
 
+      const filteredPayments = newPayments.map(
+        (
+          {
+            cardPayment,
+            ...rest
+          },
+          index
+        ) => {
+
+          return {
+            ...rest,
+          };
+        }
+      );
+
       const orderIdToSave = selectedOrder ? selectedOrder : "000";
 
       // Create a new order data object excluding specific keys
@@ -173,7 +191,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       const updatedOrderData = {
         ...rest,
         orderId: orderIdToSave,
-        paymentList: payments,
+        paymentList: filteredPayments,
         products: filteredProducts,
       };
 
@@ -193,6 +211,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         setSelectedOrder(newOrderId);
         setOrders((prevOrders) => [...prevOrders, newOrderId]);
       }
+
+      handleProductTagClick(newOrderId); // Trigger click to select the order
 
       setOrderData((prevData) => ({
         ...prevData,
@@ -524,43 +544,56 @@ export const ProductTable: React.FC<ProductTableProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-row gap-x-[1px] ml-[10px] border border-blue-300 rounded-md p-[5px]">
+          <div className="flex flex-row gap-x-[1px] ml-[10px] border-1 border-blue-500 rounded-md p-[3px]">
             <div className="relative group">
-              <button
-                className={`px-2 py-1 ${
-                  allProductsConfirmed
-                    ? "bg-green-500 hover:bg-green-600"
-                    : "bg-gray-400 cursor-not-allowed"
-                } transition-colors rounded text-white mr-2`}
-                onClick={handleOpenModal}
-                disabled={!allProductsConfirmed}
-              >
-                <FaPrint />
-              </button>
+            <div
+  className={`${!allProductsConfirmed ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+  onClick={handleOpenModal}
+>
+                <Image
+      src="/printicon.png"
+      alt="Save"
+      width={34} 
+      height={30}
+      className="mr-2" 
+    />
+    </div>
               <div className="absolute top-full left-0 bg-gray-800 text-white px-2 py-1 rounded-md text-sm mt-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
                 Print Order Summary
               </div>
             </div>
             <div className="relative group">
-              <button
-                className="px-2 py-1 bg-green-500 hover:bg-green-600 transition-colors rounded text-white mr-2"
-                onClick={handleSaveOrder}
-              >
-                <FaPlus />
-              </button>
+                 <Image
+      src="/addicon.png"
+      alt="Save"
+      width={34} 
+      height={30}
+      className="mr-2" 
+                       onClick={handleSaveOrder}
+    />
               <div className="absolute top-full left-0 bg-gray-800 text-white px-2 py-1 rounded-md text-sm mt-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
                 Create New Order
               </div>
             </div>
 
             <div className="relative group">
-              <button
-                className="px-2 py-1 bg-green-500 hover:bg-green-600 transition-colors rounded text-white mr-2"
-                onClick={handleSaveOrder}
-              >
-                {/* {isNewOrder ? "Save New Order" : "Update Order"} */}
-                <FaSave />
-              </button>
+            <div
+  className={`${!selectedOrder || selectedOrder === "000" ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+  onClick={() => {
+    if (selectedOrder && selectedOrder !== "000") {
+      handleSaveOrder();
+    }
+  }}
+>
+  <Image
+    src="/saveicon.png"
+    alt="Save"
+    width={34}
+    height={30}
+    className="mr-2"
+  />
+</div>
+
               <div className="absolute top-full left-0 bg-gray-800 text-white px-2 py-1 rounded-md text-sm mt-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
                 Save Order Details
               </div>
@@ -568,13 +601,17 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
             {selectedOrder && (
               <div className="relative group">
-                <button
-                  className="px-2 py-1 bg-red-500 hover:bg-red-600 transition-colors rounded text-white"
-                  onClick={() => onDeleteOrder(parseInt(selectedOrder))}
-                  disabled={!selectedOrder}
-                >
-                  <FaTrash />
-                </button>
+                   <div
+  className={`mr-2 ${!selectedOrder ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+  onClick={() => selectedOrder && onDeleteOrder(parseInt(selectedOrder))}
+>
+  <Image
+    src="/deleteicon.png"
+    alt="Delete"
+    width={34}
+    height={24}
+  />
+</div>
                 <div className="absolute top-full left-0 bg-gray-800 text-white px-2 py-1 rounded-md text-sm mt-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
                   Delete Order
                 </div>
@@ -588,79 +625,90 @@ export const ProductTable: React.FC<ProductTableProps> = ({
             id="productsPerPage"
             value={productsPerPage}
             onChange={handleProductsPerPageChange}
-            className="px-2 py-1 border border-gray-300 rounded"
+            className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value={5}>5</option>
             <option value={10}>10</option>
             <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
           </select>
         </div>
       </div>
 
       <div>
+      <div
+    className="max-h-[400px] overflow-y-auto mb-4 border-3 border-blue-400 rounded-md shadow-lg"
+  >
         {isListView ? (
-          <ul className="bg-white rounded-lg overflow-hidden border border-gray-200">
-            {currentProducts.map((product) => (
-              <li
-                key={product.productId}
-                className={`hover:bg-gray-200 transition-colors cursor-pointer py-2 px-4 border-b border-gray-200 ${
-                  selectedProductIds.includes(
-                    product.productId?.toString() || ""
-                  )
-                    ? "bg-blue-100"
-                    : ""
-                }`}
-                onDoubleClick={() => handleProductDoubleClick(product)}
-              >
+          <ul className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-md">
+          {currentProducts.map((product) => (
+            <li
+              key={product.productId}
+              className={`hover:bg-gray-100 transition-colors cursor-pointer py-4 px-6 border-b border-gray-200 flex items-center justify-between ${
+                selectedProductIds.includes(product.productId?.toString() || "")
+                  ? "bg-blue-50"
+                  : ""
+              }`}
+              onDoubleClick={() => handleProductDoubleClick(product)}
+            >
+              <div className="flex items-center">
                 <img
                   src={product.defaultImagePath}
                   alt={product.productName}
-                  className="w-8 h-8 inline-block mr-2"
+                  className="w-12 h-12 inline-block mr-12 rounded-md shadow-sm"
                 />
-                {product.productName} - {product.barCode} - GH₵
-                {product.sellingPriceActual}
-                <button
-                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 transition-colors float-right"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddToCart(product);
-                  }}
-                >
-                  <FaPlus />
-                </button>
-              </li>
-            ))}
-          </ul>
+                <div>
+                  <h4 className="font-semibold text-[16px]">{product.productName}</h4>
+                  <div className="flex flex-row items-center gap-2">
+  <p className="text-gray-600 text-[15px]">{product.barCode}</p>
+  <div className="w-[5px] h-[5px] bg-red-600 rounded-full"></div>
+  <p className="text-orange-600 text-[15px] font-bold">GH₵{product.sellingPriceActual}</p>
+</div>
+                </div>
+              </div>
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAddToCart(product);
+                }}
+              >
+                <FaPlus />
+              </button>
+            </li>
+          ))}
+        </ul>        
         ) : (
           <table className="w-full bg-default-50 h-[350px] shadow-md rounded-lg overflow-hidden border border-gray-300">
             <thead>
-              <tr className="bg-gray-200 border-b border-gray-200">
-                <th
-                  className="py-2 text-center border-r border-gray-300 border-l"
+            <tr className="bg-gradient-to-r from-blue-400 to-blue-600 border-b border-gray-200">
+            <th
+                  className="py-2 text-center border-r text-[14px] text-white border-gray-300 border-l"
                   style={{ width: "60px" }}
                 >
                   Image
                 </th>
                 <th
-                  className="py-2 text-center text-[14px] border-r border-gray-300"
+                  className="py-2 text-center text-[14px] text-white border-r border-gray-300"
                   style={{ width: "300px" }}
                 >
                   Product
                 </th>
                 <th
-                  className="py-2 px-2 text-center text-[14px] border-r border-gray-300"
+                  className="py-2 px-2 text-center text-[14px] text-white border-r border-gray-300"
                   style={{ width: "100px" }}
                 >
                   Category
                 </th>
                 <th
-                  className="py-2 text-center text-[14px] border-r border-gray-300"
+                  className="py-2 text-center text-[14px] text-white border-r border-gray-300"
                   style={{ width: "100px" }}
                 >
                   Barcode
                 </th>
                 <th
-                  className="py-2 text-center text-[14px] border-r border-gray-300"
+                  className="py-2 text-center text-[14px] text-white border-r border-gray-300"
                   style={{ width: "100px" }}
                 >
                   Price (GH₵)
@@ -689,32 +737,32 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                     />
                   </td>
                   <td
-                    className="py-2 px-4 border-r border-gray-200 text-[13px] font-[500]"
+                    className="py-2 px-4 border-r border-gray-200 text-[15px] font-[500]"
                     style={{ width: "300px" }}
                   >
                     {product.productName}
                   </td>
                   <td
-                    className="py-2 px-4 border-r border-gray-200 text-[13px] font-[500]"
+                    className="py-2 px-4 border-r border-gray-200 text-[14px] font-[500]"
                     style={{ width: "100px" }}
                   >
                     {product.category}
                   </td>
                   <td
-                    className="py-2 px-4 border-r border-gray-200 text-[13px] font-[500]"
+                    className="py-2 px-4 border-r border-gray-200 text-[14px] font-[500]"
                     style={{ width: "100px" }}
                   >
                     {product.barCode}
                   </td>
                   <td
-                    className="py-2 px-4 border-r border-gray-200 text-[13px] text-orange-600 font-[500]"
+                    className="py-2 px-4 border-r border-gray-200 text-[14px] text-orange-600 font-[500]"
                     style={{ width: "100px" }}
                   >
                     {(product.sellingPriceActual ?? 0).toFixed(2)}
                   </td>
                   <td
                     className="py-2 px-4 border-r border-gray-200 font-[500]"
-                    style={{ width: "60px" }}
+                    style={{ width: "50px" }}
                   >
                     <button
                       className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 transition-colors"
@@ -736,6 +784,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
             </tfoot>
           </table>
         )}
+      </div>
       </div>
       <div className="flex items-center justify-center mt-4">
         <button

@@ -77,7 +77,15 @@ export interface Payment {
   paymentId: number;
   user?: string;
   paymentDate?: string;
-  amount?: number | undefined;
+  amount?: number;
+  cardPayment?: number;
+  cashPayment?: number;
+  mobileMoneyPayment?: number;
+  cashChange?: number;
+  totalBill?: number;
+  totalPayment?: number;
+  balance?: number;
+  salesOrderId?: number | string;
 }
 
 export interface OrderData {

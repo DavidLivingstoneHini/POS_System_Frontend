@@ -8,6 +8,7 @@ interface OrderSummaryTableProps {
   discount: number;
   taxes: number;
   balance: number;
+  customerName: string;
 }
 
 const saveOrderSummaryToLocalStorage = (
@@ -25,11 +26,9 @@ const saveOrderSummaryToLocalStorage = (
 };
 
 const OrderSummaryTable = forwardRef<HTMLDivElement, OrderSummaryTableProps>(
-  ({ products, grandTotal, total, discount, taxes }, ref) => {
-    // Calculate the balance
+  ({ products, grandTotal, total, discount, taxes, customerName }, ref) => {
     const balance = grandTotal - total;
 
-    // Save to localStorage whenever the component mounts or props change
     useEffect(() => {
       saveOrderSummaryToLocalStorage(
         grandTotal,
@@ -43,22 +42,23 @@ const OrderSummaryTable = forwardRef<HTMLDivElement, OrderSummaryTableProps>(
     return (
       <div
         ref={ref}
-        className="bg-default-50 rounded-lg shadow-md py-2 px-[38px] opacity-90 max-w-xl mx-auto border border-gray-300"
+        className="bg-default-100 rounded-lg shadow-md py-2 px-[38px] opacity-90 max-w-xl mx-auto border border-gray-300"
       >
         <div className="flex flex-row gap-4 items-center mb-[5px] border-t border-gray-300 pt-[5px]">
           <h3 className="text-[15px] font-bold mb-[5px]">Order Summary</h3>
-          <div className="bg-gray-500 w-[4px] h-[4px] rounded-full"></div>
+          <div className="bg-gray-300 w-[4px] h-[4px] rounded-full"></div>
           <div className="flex flex-row gap-x-1 items-center">
             <h4 className="text-red-500 text-[12px]">Status: </h4>
             <p className="text-red-500 text-[12px]">New</p>
           </div>
-          <div className="bg-gray-500 w-[4px] h-[4px] rounded-full"></div>
+          <div className="bg-gray-300 w-[4px] h-[4px] rounded-full"></div>
           <input
             id="customer-name"
             type="text"
             className="px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-[240px] h-[30px] placeholder-gray-400 text-[13px] text-ellipsis overflow-hidden"
-            defaultValue=""
+            value={customerName}
             placeholder="Customer Name or Table #"
+            readOnly
           />
         </div>
         <div className="grid grid-cols-3 gap-y-[6px] gap-x-[12px] border-t border-gray-300 pt-[6px]">

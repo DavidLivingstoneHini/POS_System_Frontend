@@ -359,7 +359,7 @@ export const POS: React.FC = () => {
   useEffect(() => {
     // Update refs whenever payments or cart changes
     totalPaymentsRef.current = payments.reduce(
-      (sum, payment) => sum + (payment.amount || 0),
+      (sum, payment) => sum + (payment.amount|| 0),
       0
     );
     grandTotalRef.current = calculateGrandTotal(
@@ -408,50 +408,66 @@ export const POS: React.FC = () => {
     setChange(amount - total);
   };
 
-  const applyDiscountToCart = (discountPercentage: number) => {
-    const discountedCart = cart.map((item) => ({
-      ...item,
-      price: (item.sellingPriceActual || 0) * (1 - discountPercentage / 100),
-      discount: discountPercentage,
-    }));
+  const applyDiscountToCart = (discountPercentage: number, productId: number) => {
+    const discountedCart = cart.map((item) => {
+      if (item.productId === productId) { // Assuming each item has a unique 'id'
+        return {
+          ...item,
+          price: (item.sellingPriceActual || 0) * (1 - discountPercentage / 100),
+          discount: discountPercentage,
+        };
+      }
+      return item; // Return the item unchanged if it doesn't match
+    });
+  
     setCart(discountedCart);
     setTotal(
       discountedCart.reduce(
-        (acc, item) => acc + item.price * (item.quantity || 0),
+        (acc, item) => acc + (item.unitPrice ?? 0) * (item.quantity || 0),
         0
       )
     );
-  };
+  };  
 
-  const applyPriceToCart = (newPrice: number) => {
-    const updatedCart = cart.map((item) => ({
-      ...item,
-      price: newPrice,
-      sellingPriceActual: newPrice,
-    }));
-
+  const applyPriceToCart = (newPrice: number, productId: number) => {
+    const updatedCart = cart.map((item) => {
+      if (item.productId === productId) {
+        return {
+          ...item,
+          price: newPrice,
+          sellingPriceActual: newPrice,
+        };
+      }
+      return item;
+    });
+  
     setCart(updatedCart);
     setTotal(
       updatedCart.reduce(
-        (acc, item) => acc + item.price * (item.quantity || 0),
+        (acc, item) => acc + (item.unitPrice ?? 0) * (item.quantity || 0),
         0
       )
     );
-  };
+  };  
 
-  const applyQuantityToCart = (newQuantity: number) => {
-    const updatedCart = cart.map((item) => ({
-      ...item,
-      quantity: newQuantity,
-      price:
-        (item.sellingPriceActual || 0) *
-        (1 - (item.discount || 0) / 100) *
-        newQuantity,
-    }));
-
+  const applyQuantityToCart = (newQuantity: number, productId: number) => {
+    const updatedCart = cart.map((item) => {
+      if (item.productId === productId) {
+        return {
+          ...item,
+          quantity: newQuantity,
+          price:
+            (item.sellingPriceActual || 0) *
+            (1 - (item.discount || 0) / 100) *
+            newQuantity,
+        };
+      }
+      return item;
+    });
+  
     setCart(updatedCart);
-    setTotal(updatedCart.reduce((acc, item) => acc + item.price, 0));
-  };
+    setTotal(updatedCart.reduce((acc, item) => acc + (item.unitPrice ?? 0), 0));
+  };  
 
   const updateCartItemDiscount = (
     productId: string | number,
@@ -522,18 +538,18 @@ export const POS: React.FC = () => {
         case "telephone":
           updatedInfo.telephone = value as string;
           break;
-        case "discountPercentage":
-          updatedInfo.discountPercentage = value as number;
-          applyDiscountToCart(value as number);
-          break;
-        case "newPrice":
-          updatedInfo.newPrice = value as number;
-          applyPriceToCart(value as number);
-          break;
-        case "quantity":
-          updatedInfo.quantity = value as number;
-          applyQuantityToCart(value as number);
-          break;
+        // case "discountPercentage":
+        //   updatedInfo.discountPercentage = value as number;
+        //   applyDiscountToCart(value as number);
+        //   break;
+        // case "newPrice":
+        //   updatedInfo.newPrice = value as number;
+        //   applyPriceToCart(value as number);
+        //   break;
+        // case "quantity":
+        //   updatedInfo.quantity = value as number;
+        //   applyQuantityToCart(value as number);
+        //   break;
       }
       return updatedInfo;
     });
@@ -551,10 +567,14 @@ export const POS: React.FC = () => {
     setPayments((prevPayments) => [
       ...prevPayments,
       {
-        paymentId: Date.now(),
-        user: sessionStorage.getItem("username") || "Guest",
+        paymentId: 0,
+        user: localStorage.getItem("username") ?? "",
         paymentDate: new Date().toISOString(),
         amount: paymentAmount,
+        totalBill: grandTotal,
+        totalPayment: paymentAmount,
+        balance: grandTotal - paymentAmount,
+        salesOrderId: localStorage.getItem("selectedOrderId") ?? 0,
       },
     ]);
   };
@@ -750,7 +770,6 @@ export const POS: React.FC = () => {
                 removeFromCart={removeFromCart}
                 updateCartItemDiscount={updateCartItemDiscount}
                 updateCartItemPrice={(productId, newPrice) => {
-                  // Implement price update logic here if necessary
                   const updatedCart = cart.map((item) => {
                     if (item.productId === productId) {
                       return {
@@ -785,6 +804,7 @@ export const POS: React.FC = () => {
                   taxes={0} //TODO: Add tax calculation logic
                   total={totalPayments} // payments={inputAmount}
                   balance={balance}
+                  customerName={customerInfo.customerName}
                 />
                 <CustomerInfoTable
                   customerInfo={customerInfo}
@@ -799,6 +819,7 @@ export const POS: React.FC = () => {
                   agents={[]} // TODO: Pass actual agent data
                   addresses={[]} // TODO: Pass actual address data
                   selectedProduct={selectedProduct}
+                  setSelectedProduct={setSelectedProduct}
                   onError={handleError}
                   onSuccess={handleSuccess}
                 />
