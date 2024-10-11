@@ -22,6 +22,8 @@ import ErrorModal from "./modals/error-modal";
 import SuccessModal from "./modals/success-modal";
 import CustomLoader from "@/utils/CustomLoader";
 import Footer from "./footer";
+import ConfirmationModal from "./modals/confirm-save";
+import ConfirmationDelModal from "./modals/confirm-delete";
 
 let apiObject: any = {
   products: [],
@@ -92,6 +94,27 @@ export const POS: React.FC = () => {
   });
   const [payments, setPayments] = useState<Payment[]>([]);
   const [payment, setPayment] = useState<number>(0);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [isConfirmationDelModalOpen, setIsConfirmationDelModalOpen] = useState(false);
+  const [onConfirmSaveOrder, setOnConfirmSaveOrder] = useState<(() => Promise<void>) | null>(null);
+  const [orderToDelete, setOrderToDelete] = useState<number | null>(null);
+
+  const handleOpenConfirmationModal = (saveOrderLogic: () => Promise<void>) => {
+    setOnConfirmSaveOrder(() => saveOrderLogic);
+    setIsConfirmationModalOpen(true);
+  };
+
+  const handleCloseConfirmationModal = () => {
+    setIsConfirmationModalOpen(false);
+  };
+
+  const handleConfirmSaveOrder = async () => {
+    if (onConfirmSaveOrder) {
+      await onConfirmSaveOrder();
+    }
+    handleCloseConfirmationModal();
+    window.location.reload()
+  };
 
   const handleOpenModal = (data: any) => {
     setReceiptData(data);
@@ -126,15 +149,6 @@ export const POS: React.FC = () => {
   const closeSuccessModal = () => {
     setIsSuccessModalOpen(false);
     setSuccessMessage(null);
-  };
-
-  const handleDeleteOrder = async (orderId: number) => {
-    try {
-      await deleteOrder(orderId);
-      clearCart();
-    } catch (error) {
-      console.error("Error deleting order:", error);
-    }
   };
 
   useEffect(() => {
@@ -295,6 +309,7 @@ export const POS: React.FC = () => {
   };
 
   const removeFromCart = (product: Product) => {
+    
     setCart((prevCart) => {
       const existingProductIndex = prevCart.findIndex(
         (item) => item.productId === product.productId
@@ -729,7 +744,6 @@ export const POS: React.FC = () => {
               handleAddToCart={handleAddToCart}
               onOrderSelect={handleOrderDetailsFetch}
               onOpenModal={handleOpenModal}
-              handleDeleteOrder={handleDeleteOrder}
               clearCart={clearCart}
               cart={cart}
               setCart={setCart}
@@ -737,6 +751,7 @@ export const POS: React.FC = () => {
               onSuccess={handleSuccess}
               payments={payments}
               handleConfirmTransaction={handleConfirmTransaction}
+              onSaveOrder={handleOpenConfirmationModal}
             />
           </div>
           <FastenerDivider />
@@ -791,6 +806,7 @@ export const POS: React.FC = () => {
                 updateCartItemQuantity={updateCartItemQuantity}
                 setSelectedProduct={setSelectedProduct}
                 selectedProduct={selectedProduct}
+                payments={payments}
               />
             </div>
             <div className="w-full flex flex-row gap-x-7 px-4 py-2 mb-4 border-1 border-dashed rounded-md mt-3 border-gray-400 justify-center items-center">
@@ -870,6 +886,11 @@ export const POS: React.FC = () => {
           onClose={closeSuccessModal}
         />
       )}
+       <ConfirmationModal
+        isOpen={isConfirmationModalOpen}
+        onClose={handleCloseConfirmationModal}
+        onConfirm={handleConfirmSaveOrder}
+      />
       <Footer />
     </div>
   );

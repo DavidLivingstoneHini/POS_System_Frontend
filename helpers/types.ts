@@ -35,6 +35,7 @@ export interface Product {
   barCode?: string;
   category?: string;
   orderDetailID?: string;
+  salesOrderId?: string;
   productPrice?: number | undefined;
   unitPrice?: number;
   tax?: number;
@@ -130,7 +131,7 @@ export interface Item {
 }
 
 export interface ReceiptData {
-  items: Product[];
+  items: Product[]; 
   orderId: string | null;
   companyLogo: string;
   loginCompany: string;

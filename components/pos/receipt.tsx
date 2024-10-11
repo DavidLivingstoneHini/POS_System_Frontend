@@ -87,8 +87,6 @@ const Receipt: React.FC<ReceiptProps> = ({ receiptData }) => {
             alt="Logo"
             className="w-32 h-auto mb-2"
           />
-          {/* <h2 className="text-xl font-bold">{receiptData?.loginCompany}</h2> */}
-          <br />
           <p className="text-sm">East Legon</p>
           <p className="text-sm">Tel: {receiptData?.companyTelephone}</p>
           <p className="text-sm">Email: kamakgroup@gmail.com</p>
@@ -104,7 +102,6 @@ const Receipt: React.FC<ReceiptProps> = ({ receiptData }) => {
 
         <div className="grid grid-cols-5 text-sm font-semibold mb-2">
           <p>Product</p>
-          <p>Px</p>
           <p>Qty</p>
           <p>Disc</p>
           <p>Total</p>
@@ -114,7 +111,7 @@ const Receipt: React.FC<ReceiptProps> = ({ receiptData }) => {
           <div key={index} className="grid grid-cols-5 text-sm mb-1">
             <small>{item.productName}</small>
             <small>{stringNumberToCurrency(item.productPrice ?? 0)}</small>
-            <small>{item.quantity ?? 0}</small>
+            <small>{item.quantity}</small>
             <small>{stringNumberToCurrency(item.discount ?? 0)}</small>
             <small>{stringNumberToCurrency(item.total ?? 0)}</small>
           </div>

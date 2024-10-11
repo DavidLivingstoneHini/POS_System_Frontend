@@ -37,7 +37,6 @@ interface ProductTableProps {
   selectedProductIds: string[];
   setSelectedProductIds: React.Dispatch<React.SetStateAction<string[]>>;
   onOpenModal: (data: ReceiptData) => void;
-  handleDeleteOrder: (orderId: number) => void;
   clearCart: () => void;
   cart: Product[];
   setCart: React.Dispatch<React.SetStateAction<Product[]>>;
@@ -45,6 +44,7 @@ interface ProductTableProps {
   onSuccess: (message: string) => void;
   payments: Payment[];
   handleConfirmTransaction: (amount: number) => void;
+  onSaveOrder: (saveOrderLogic: () => Promise<void>) => void;
 }
 
 export const ProductTable: React.FC<ProductTableProps> = ({
@@ -56,7 +56,6 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   selectedProductIds,
   setSelectedProductIds,
   onOpenModal,
-  handleDeleteOrder,
   clearCart,
   cart,
   setCart,
@@ -64,6 +63,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   onSuccess,
   payments,
   handleConfirmTransaction,
+  onSaveOrder,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage, setProductsPerPage] = useState(5);
@@ -92,6 +92,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
     paymentList: [],
     products: [],
   });
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
 
   // State for order summary
   const [total, setTotal] = useState(0);
@@ -124,13 +125,116 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   const orderTagsRef = useRef<HTMLDivElement>(null);
 
   const handleSaveOrder = async () => {
-    // // Check if there are products in the cart
-    // if (selectedOrder && cart.length === 0) {
-    //   alert(
-    //     "Please add products to the cart before saving the existing order."
-    //   );
-    //   return;
-    // }
+    const saveOrderLogic = async () => {
+    try {
+      const newOrderProducts = cart;
+      const newPayments = payments;
+
+      // Create a new products array, renaming keys as necessary and calculating totals
+      const filteredProducts = newOrderProducts.map(
+        (
+          {
+            defaultImagePath,
+            sellingPriceActual,
+            applyProductLevelDiscount,
+            barCode,
+            quantity,
+            ...rest
+          },
+          index
+        ) => {
+          const productPrice = sellingPriceActual ?? 0;
+          const effectiveQuantity = quantity ?? 0;
+          const total = productPrice * effectiveQuantity;
+          // const discount = applyProductLevelDiscount ? total * 0.1 : 0;
+          const discount = total * 0.0;
+          // const tax = total * 0.05;
+          const tax = total * 0.0;
+
+          return {
+            ...rest,
+            productPrice,
+            quantity: quantity,
+            total: total - discount,
+            tax,
+            orderDetailID: `id${index + 1}`,
+            salesOrderId: selectedOrder?.toString(),
+            stockAffected: true,
+          };
+        }
+      );
+
+      const filteredPayments = newPayments.map(
+        (
+          {
+            cardPayment,
+            ...rest
+          },
+          index
+        ) => {
+
+          return {
+            ...rest,
+          };
+        }
+      );
+
+      const orderIdToSave = selectedOrder ? selectedOrder : "000";
+
+      // Create a new order data object excluding specific keys
+      const { ...rest } = orderData;
+
+      const updatedOrderData = {
+        ...rest,
+        orderId: orderIdToSave,
+        paymentList: filteredPayments,
+        products: filteredProducts,
+      };
+
+      console.log("Order Data to be sent:", updatedOrderData);
+
+      const isUpdate = selectedOrder !== null && selectedOrder !== "000";
+
+      if (!isUpdate) {
+        setIsNewOrderCreated(true);
+      }
+
+      const response = await saveOrder(updatedOrderData, isUpdate);
+
+      const newOrderId = response.orderId ?? "000";
+
+      if (!selectedOrder) {
+        setSelectedOrder(newOrderId);
+        setOrders((prevOrders) => [...prevOrders, newOrderId]);
+      }
+
+      handleProductTagClick(newOrderId); // Trigger click to select the order
+
+      setOrderData((prevData) => ({
+        ...prevData,
+        orderId: "000",
+        products: [],
+      }));
+
+      clearCart();
+
+      if (isUpdate) {
+        onSuccess("Order saved successfully!");
+      }
+    } catch (error: any) {
+      console.error("Error saving order:", error);
+      const message = error.message || "An unknown error occurred.";
+      onError(message);
+    } finally {
+      setIsNewOrderCreated(false);
+    }
+  }
+    // Pass the save logic to the parent
+    onSaveOrder(saveOrderLogic);
+  };
+
+  // for adding new order
+  const handleAddOrder = async () => {
     try {
       const newOrderProducts = cart;
       const newPayments = payments;
@@ -201,7 +305,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
       if (!isUpdate) {
         setIsNewOrderCreated(true);
-      }
+      } 
 
       const response = await saveOrder(updatedOrderData, isUpdate);
 
@@ -222,9 +326,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
       clearCart();
 
-      if (isUpdate) {
-        onSuccess("Order saved successfully!");
-      }
+      // if (isUpdate) {
+      //   onSuccess("Order saved successfully!");
+      // }
     } catch (error: any) {
       console.error("Error saving order:", error);
       const message = error.message || "An unknown error occurred.";
@@ -237,46 +341,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
   // Check if all products in the cart are confirmed
   const allProductsConfirmed = useMemo(() => {
     return cart.every((product) => product.confirmed);
-  }, [cart]);
-
-  const onDeleteOrder = async (orderId: number) => {
-    try {
-      const orderIdString = orderId.toString();
-
-      if (isNewOrderCreated && selectedOrder === orderIdString) {
-        setOrders((prevOrders) =>
-          prevOrders.filter((order) => order !== orderIdString)
-        );
-        setSelectedOrder(null);
-        setIsNewOrderCreated(false);
-      } else {
-        await handleDeleteOrder(orderId);
-        const updatedOrders = orders.filter((order) => order !== orderIdString);
-        setOrders(updatedOrders);
-
-        // Refresh the entire page after deletion
-        window.location.reload();
-
-        if (updatedOrders.length > 0) {
-          const nextOrder =
-            updatedOrders[
-              orders.indexOf(orderIdString) < updatedOrders.length
-                ? orders.indexOf(orderIdString)
-                : updatedOrders.length - 1
-            ];
-          setSelectedOrder(nextOrder);
-          handleProductTagClick(nextOrder);
-        } else {
-          setSelectedOrder(null);
-        }
-      }
-      onSuccess("Order deleted successfully!");
-    } catch (error: any) {
-      console.error("Error deleting order:", error);
-      const message = error.message || "An unknown error occurred.";
-      onError(message);
-    }
-  };
+  }, [cart]); 
 
   // Scroll to the selected order on change
   useEffect(() => {
@@ -375,30 +440,35 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
   const handleOpenModal = () => {
     if (!allProductsConfirmed) {
-      // Optionally show a message to the user
       alert("All products must be confirmed to print the receipt.");
       return;
     }
-
+  
+    // Prepare the receipt data
     const preparedReceiptData: ReceiptData = {
-      items: products.filter((product) =>
-        selectedProductIds.includes(product.productId?.toString() || "")
-      ),
+      items: cart.map(product => ({
+        productId: product.productId,
+        productName: product.productName,
+        productPrice: product.sellingPriceActual,
+        quantity: product.quantity,
+        discount: product.discount || 0,
+        total: (product.sellingPriceActual || 0) * (product.quantity || 0) - (product.discount || 0),
+      })),
       orderId: orderData.orderId,
-      companyLogo: "companyLogo", // Replace with actual data
-      loginCompany: "Kamak", // Replace with actual data
-      companyAddress: "companyAddress", // Replace with actual data
-      companyTelephone: "companyTelephone", // Replace with actual data
-      companyEmail: "companyEmail", // Replace with actual data
+      companyLogo: "companyLogo", 
+      loginCompany: "Kamak", 
+      companyAddress: "companyAddress", 
+      companyTelephone: "companyTelephone", 
+      companyEmail: "companyEmail", 
       subTotal: total,
       totalTax: taxes,
       totalDiscount: discount,
       grandTotal: grandTotal,
       totalPayment: payment,
     };
-
+  
     onOpenModal(preparedReceiptData);
-  };
+  };  
 
   useEffect(() => {
     const totalAmount = products.reduce(
@@ -470,6 +540,32 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       </button>
     ));
   };
+
+  // Check if there are confirmed products in the cart for the selected order
+ // Check if there are confirmed products in the cart
+const hasConfirmedProducts = useMemo(() => {
+  return cart.some((product) => product.confirmed);
+}, [cart]);
+
+    const handleDeleteOrder = async (orderId: string) => {
+      // Check if there are confirmed products in the cart for the selected order
+      if (hasConfirmedProducts) {
+        alert("Cannot delete this order while there are confirmed items in the cart.");
+        // return;
+      }
+  
+      try {
+        await deleteOrder(Number(orderId)); // Convert orderId to a number
+        setOrders(prevOrders => prevOrders.filter(order => order !== orderId));
+        onSuccess("Order deleted successfully!");
+  
+        // Refresh the entire page
+        window.location.reload();
+      } catch (error: any) {
+        console.error("Error deleting order:", error);
+        onError(error.message);
+      }
+    };
 
   return (
     <div className="bg-default-50 rounded-xl shadow-md py-4 px-[10px] opacity-90 relative">
@@ -569,7 +665,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       width={34} 
       height={30}
       className="cursor-pointer mr-2" 
-                       onClick={handleSaveOrder}
+                       onClick={handleAddOrder}
     />
               <div className="absolute top-full left-0 bg-gray-800 text-white px-2 py-1 rounded-md text-sm mt-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
                 Create New Order
@@ -599,24 +695,28 @@ export const ProductTable: React.FC<ProductTableProps> = ({
               </div>
             </div>
 
-            {selectedOrder && (
-              <div className="relative group">
-                   <div
-  className={`mr-2 ${!selectedOrder ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
-  onClick={() => selectedOrder && onDeleteOrder(parseInt(selectedOrder))}
->
-  <Image
-    src="/deleteicon.png"
-    alt="Delete"
-    width={34}
-    height={24}
-  />
-</div>
-                <div className="absolute top-full left-0 bg-gray-800 text-white px-2 py-1 rounded-md text-sm mt-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                  Delete Order
-                </div>
-              </div>
-            )}
+            {!hasConfirmedProducts && (
+  <div className="relative group">
+    <div
+      className="mr-2 cursor-pointer"
+      onClick={() => {
+        if (selectedOrder) {
+          handleDeleteOrder(selectedOrder);
+        }
+      }}
+    >
+      <Image
+        src="/deleteicon.png"
+        alt="Delete"
+        width={34}
+        height={24}
+      />
+    </div>
+    <div className="absolute top-full left-0 bg-gray-800 text-white px-2 py-1 rounded-md text-sm mt-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+      Delete Order
+    </div>
+  </div>
+)}
           </div>
         </div>
 
@@ -812,10 +912,10 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         </button>
       </div>
       {modalOpen && (
-        <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
-          <Receipt receiptData={receiptData} />
-        </Modal>
-      )}
+  <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
+    <Receipt receiptData={receiptData} />
+  </Modal>
+)}
     </div>
   );
 };

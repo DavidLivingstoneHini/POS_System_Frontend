@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Product } from "../../helpers/types";
+import { Payment, Product } from "../../helpers/types";
 import { DeleteIcon } from "../icons/accounts/delete-icon";
 import { deleteOrderDetail } from "@/services/apiService";
 
@@ -17,6 +17,7 @@ interface CartTableProps {
     productId: string | number,
     quantity: number
   ) => void;
+  payments: Payment[];
 }
 
 export const CartTable: React.FC<CartTableProps> = ({
@@ -27,6 +28,7 @@ export const CartTable: React.FC<CartTableProps> = ({
   updateCartItemDiscount,
   updateCartItemPrice,
   updateCartItemQuantity,
+  payments,
 }) => {
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [editableValues, setEditableValues] = useState<{
@@ -36,6 +38,10 @@ export const CartTable: React.FC<CartTableProps> = ({
   } | null>(null);
 
   const handleDeleteClick = async (product: Product) => {
+    if (payments.length > 0) {
+      alert("Cannot delete product for an order which has a payment.");
+      return;
+    }
     try {
       await deleteOrderDetail(product.productId || 0);
       removeFromCart(product);
@@ -78,7 +84,7 @@ export const CartTable: React.FC<CartTableProps> = ({
 
         // Reset editing state
         setEditingProductId(null);
-        setEditableValues(null); // Clear editable values after update
+        setEditableValues(null);
       }
     }
   };
@@ -116,7 +122,7 @@ export const CartTable: React.FC<CartTableProps> = ({
                     <input
                       type="checkbox"
                       checked={selectedProduct?.productId === product.productId}
-                      onChange={() => handleRowClick(product)} // Toggle selection
+                      onChange={() => handleRowClick(product)}
                       className="form-checkbox h-5 w-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </td>
@@ -226,8 +232,7 @@ export const CartTable: React.FC<CartTableProps> = ({
                           handleDeleteClick(product);
                         }
                       }}
-                      disabled={product.confirmed}
-                    >
+                      disabled={product.confirmed || payments.length > 0}>
                       <DeleteIcon color="white" />
                     </button>
                   </td>
