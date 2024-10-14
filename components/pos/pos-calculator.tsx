@@ -11,7 +11,7 @@ interface CalculatorProps {
   handleConfirmTransaction: (paymentAmount: number) => void;
   handleEndTransaction: () => void;
   handleShowTransactionModal: () => void;
-  onConfirmOrder: () => void;
+  // onConfirmOrder: () => void;
 }
 
 export const Calculator: React.FC<CalculatorProps> = ({
@@ -22,7 +22,7 @@ export const Calculator: React.FC<CalculatorProps> = ({
   handleConfirmTransaction,
   handleEndTransaction,
   handleShowTransactionModal,
-  onConfirmOrder,
+  // onConfirmOrder,
 }) => {
   const [hasDecimal, setHasDecimal] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -51,7 +51,7 @@ export const Calculator: React.FC<CalculatorProps> = ({
 
   const confirmTransaction = () => {
     handleConfirmTransaction(inputAmount);
-    onConfirmOrder();
+    // onConfirmOrder();
     closeModal();
   };
 
@@ -89,12 +89,12 @@ export const Calculator: React.FC<CalculatorProps> = ({
         )}
       </div>
       <div className="flex justify-between">
-        <button
+        {/* <button
           className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded-lg flex-1 mr-1 text-xs"
           onClick={openModal}
         >
           Confirm
-        </button>
+        </button> */}
         <button
           className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded-lg flex-1 mr-1 text-xs"
           onClick={handleEndTransaction}
@@ -102,10 +102,10 @@ export const Calculator: React.FC<CalculatorProps> = ({
           End
         </button>
         <button
-          className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-2 rounded-lg flex-1 text-xs"
+          className="bg-gray-700 flex flex-row gap-1 text-center justify-center hover:bg-gray-600 text-white font-bold py-1 px-2 rounded-lg flex-1 text-xs"
           onClick={() => handleInputAmount(0)}
         >
-          <FaTrashAlt color="orange" />
+          <FaTrashAlt color="orange" /> <p>Del</p>
         </button>
         <button
           className="flex flex-row gap-x-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-1 px-2 rounded-lg flex-1 ml-1 text-xs"

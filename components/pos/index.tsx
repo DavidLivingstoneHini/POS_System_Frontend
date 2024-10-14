@@ -180,6 +180,8 @@ export const POS: React.FC = () => {
       const criteria = "All";
       const productData = await fetchInventories(companyId, criteria);
       setProducts(productData);
+      
+      window.location.reload();
     } catch (error) {
       console.error("Error refreshing products:", error);
     } finally {
@@ -187,7 +189,7 @@ export const POS: React.FC = () => {
         setLoading(false);
       }, 800);
     }
-  };
+  };  
 
   // Fetch order details when an order is clicked
   const handleOrderDetailsFetch = async (orderId: string) => {
@@ -850,7 +852,7 @@ export const POS: React.FC = () => {
                   // Handle end transaction logic(IT SHOULD BE END ORDER)
                 }}
                 handleShowTransactionModal={handleShowTransactionModal}
-                onConfirmOrder={handleConfirmOrder}
+                // onConfirmOrder={handleConfirmOrder}
               />
             </div>
           </div>

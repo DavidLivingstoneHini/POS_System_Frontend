@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Payment, Product } from "../../helpers/types";
 import { DeleteIcon } from "../icons/accounts/delete-icon";
 import { deleteOrderDetail } from "@/services/apiService";
@@ -36,6 +36,32 @@ export const CartTable: React.FC<CartTableProps> = ({
     price: number;
     discount: number;
   } | null>(null);
+
+  // Helper function to save products to localStorage
+  const saveCartToLocalStorage = (products: Product[]) => {
+    const cartData = products.map((product) => ({
+      productId: product.productId,
+      productName: product.productName,
+      quantity: product.quantity,
+      productPrice: product.sellingPriceActual || product.unitPrice || 0,
+      discount: product.discount || 0,
+      total:
+        ((product.sellingPriceActual || product.unitPrice || 0) -
+          ((product.sellingPriceActual || product.unitPrice || 0) * (product.discount || 0)) / 100) *
+        (product.quantity || 0),
+    }));
+    localStorage.setItem("cartItems", JSON.stringify(cartData));
+  };
+
+  // Effect to save cart to localStorage whenever products change
+  useEffect(() => {
+    if (products.length > 0) {
+      saveCartToLocalStorage(products);
+    } else {
+      localStorage.removeItem("cartItems");
+    }
+  }, [products]);
+
 
   const handleDeleteClick = async (product: Product) => {
     if (payments.length > 0) {

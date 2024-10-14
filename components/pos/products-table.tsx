@@ -643,7 +643,7 @@ const hasConfirmedProducts = useMemo(() => {
           <div className="flex flex-row gap-x-[1px] ml-[10px] border-1 border-blue-500 rounded-md p-[3px]">
             <div className="relative group">
             <div
-  className={`${!allProductsConfirmed ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+  className={`${!allProductsConfirmed && payments.length < 0 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
   onClick={handleOpenModal}
 >
                 <Image
@@ -698,12 +698,12 @@ const hasConfirmedProducts = useMemo(() => {
             {!hasConfirmedProducts && (
   <div className="relative group">
     <div
-      className="mr-2 cursor-pointer"
-      onClick={() => {
-        if (selectedOrder) {
-          handleDeleteOrder(selectedOrder);
-        }
-      }}
+        className="mr-2cursor-not-allowed opacity-50"
+      // onClick={() => {
+      //   if (selectedOrder) {
+      //     handleDeleteOrder(selectedOrder);
+      //   }
+      // }}
     >
       <Image
         src="/deleteicon.png"

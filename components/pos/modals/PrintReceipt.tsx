@@ -9,9 +9,9 @@ interface ModalProps {
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
 
-  const handleContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault(); // Disable right-click context menu
-  };
+  // const handleContextMenu = (e: React.MouseEvent) => {
+  //   e.preventDefault(); // Disable right-click context menu
+  // };
 
   return (
     <div
@@ -19,9 +19,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg relative"
+        className="bg-white rounded-lg p-6 max-w-md w-full max-h-[80vh] shadow-lg relative overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
-        onContextMenu={handleContextMenu} // Disable right-click on modal
+        // onContextMenu={handleContextMenu} // Disable right-click on modal
       >
         <button
           className="absolute top-4 right-4 text-gray-600 hover:text-red-600 text-2xl"
@@ -30,7 +30,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
         >
           &times;
         </button>
-        <div className="w-full">{children}</div>
+        <div className="w-full">
+          {children}
+        </div>
       </div>
     </div>
   );
