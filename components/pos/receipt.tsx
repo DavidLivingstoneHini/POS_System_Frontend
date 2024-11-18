@@ -231,7 +231,7 @@ object {
           />
           <p className="text-sm">East Legon</p>
           <p className="text-sm">Tel: {receiptData?.companyTelephone}</p>
-          <p className="text-sm">Email: kamakgroup@gmail.com</p>
+          <p className="text-sm">Email: service@kamakagroup.com</p>
           <button
             className="mt-2 px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-500"
             onClick={handlePrint}

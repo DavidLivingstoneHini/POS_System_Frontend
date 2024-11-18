@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
       <p>
         Contact us:{" "}
         <a href="mailto:support@kamakagroup.com" className="underline">
-          support@kamakagroup.com
+          service@kamakagroup.com
         </a>
       </p>
     </footer>

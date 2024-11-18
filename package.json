@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "cross-env PORT=3030 next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -37,6 +37,7 @@
     "@types/react-dom": "18.0.6",
     "@types/react-tooltip": "^3.11.0",
     "autoprefixer": "^10.4.15",
+    "cross-env": "^7.0.3",
     "eslint": "8.23.1",
     "eslint-config-next": "13.4.16",
     "postcss": "^8.4.28",

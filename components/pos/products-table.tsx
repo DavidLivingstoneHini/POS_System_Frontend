@@ -551,15 +551,14 @@ const hasConfirmedProducts = useMemo(() => {
       // Check if there are confirmed products in the cart for the selected order
       if (hasConfirmedProducts) {
         alert("Cannot delete this order while there are confirmed items in the cart.");
-        // return;
+        return;
       }
   
       try {
-        await deleteOrder(Number(orderId)); // Convert orderId to a number
+        await deleteOrder(Number(orderId));
         setOrders(prevOrders => prevOrders.filter(order => order !== orderId));
         onSuccess("Order deleted successfully!");
   
-        // Refresh the entire page
         window.location.reload();
       } catch (error: any) {
         console.error("Error deleting order:", error);

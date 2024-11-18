@@ -58,9 +58,10 @@ export const SidebarWrapper = () => {
                 href="pos"
               />
               <SidebarItem
-                isActive={pathname === "/customers"}
-                title="HR & Payroll"
+                isActive={pathname === "/customer_support"}
+                title="Customer Support"
                 icon={<CustomersIcon />}
+                href="customer_support"
               />
               <SidebarItem
                 isActive={pathname === "/products"}

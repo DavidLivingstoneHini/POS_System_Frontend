@@ -39,7 +39,7 @@ export const Content = () => (
             <Link href="">
               <CardBalance5 />
             </Link>
-            <Link href="">
+            <Link href="/customer_support">
               <CardBalance6 />
             </Link>
           </div>

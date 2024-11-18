@@ -19,7 +19,12 @@ export const Layout = ({ children }: Props) => {
   React.useEffect(() => {
     if (pathname === "/pos") {
       setIsSidebarOpen(false);
-    } else {
+    } 
+    // else if (pathname === "/customer_support") {
+    //   setIsSidebarOpen(false);
+
+    // }
+     else {
       setIsSidebarOpen(true);
     }
   }, [pathname]);
